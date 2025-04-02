@@ -1,14 +1,6 @@
-'use client';
+import React from 'react';
 
-import { UserData } from '@/utils/types';
-import Image from 'next/image';
-
-interface PortfolioPreviewProps {
-  userData: UserData;
-  theme: 'light' | 'dark';
-}
-
-export default function PortfolioPreview({ userData, theme }: PortfolioPreviewProps) {
+export default function PortfolioPreview({ userData, theme }) {
   const { name, title, bio, avatarUrl, socialLinks, projects } = userData;
   
   return (
