@@ -6,10 +6,11 @@ import PortfolioPreview from '@/components/PortfolioPreview';
 import { UserData } from '@/utils/types';
 import { loadUserData, saveUserData, getEmptyUserData } from '@/utils/storage';
 import { exportToPdf } from '@/utils/exportPdf';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function Home() {
   const [userData, setUserData] = useState<UserData>(getEmptyUserData());
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
 
   useEffect(() => {
@@ -23,8 +24,12 @@ export default function Home() {
     saveUserData(userData);
   }, [userData]);
 
-  const handleDownloadPDF = () => {
-    exportToPdf('portfolio-preview', `${userData.name.replace(/\s+/g, '_')}_portfolio.pdf`);
+  const handleDownloadPDF = async () => {
+    try {
+      await exportToPdf('portfolio-preview', `${userData.name.replace(/\s+/g, '_')}_portfolio.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+    }
   };
 
   const handleDownloadHTML = () => {

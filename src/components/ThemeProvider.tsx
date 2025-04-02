@@ -13,8 +13,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
+  const [mounted, setMounted] = useState(false);
 
+  // Efeito executado apenas no cliente após a montagem do componente
   useEffect(() => {
+    setMounted(true);
+    
+    // Carregar tema do localStorage apenas no cliente
     const storedTheme = localStorage.getItem('theme') as Theme | null;
     if (storedTheme) {
       setTheme(storedTheme);
@@ -23,7 +28,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Atualizar o localStorage e classes apenas no cliente
   useEffect(() => {
+    if (!mounted) return;
+    
     localStorage.setItem('theme', theme);
     
     if (theme === 'dark') {
@@ -31,7 +39,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+  }, [theme, mounted]);
+
+  // Se ainda não estiver montado no cliente, renderize sem efeitos visuais de tema
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
