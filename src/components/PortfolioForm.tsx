@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserData } from '@/utils/types';
+import { UserData, Project } from '@/utils/types';
 
 interface PortfolioFormProps {
   userData: UserData;
@@ -31,7 +31,7 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
   };
 
   const removeProject = (index: number) => {
-    const updatedProjects = userData.projects.filter((_, i) => i !== index);
+    const updatedProjects = userData.projects.filter((_: Project, i: number) => i !== index);
     setUserData({ ...userData, projects: updatedProjects });
   };
 
@@ -164,7 +164,7 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
             </button>
           </div>
 
-          {userData.projects.map((project, index) => (
+          {userData.projects.map((project: Project, index: number) => (
             <div key={index} className="border border-gray-300 dark:border-gray-700 p-4 rounded-md mb-4">
               <div className="flex justify-between items-center mb-3">
                 <h4 className="text-lg font-medium text-gray-800 dark:text-white">Projeto {index + 1}</h4>
