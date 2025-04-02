@@ -6,23 +6,54 @@ import PortfolioPreview from '@/components/PortfolioPreview';
 import { UserData } from '@/utils/types';
 import { loadUserData, saveUserData, getEmptyUserData } from '@/utils/storage';
 import { exportToPdf } from '@/utils/exportPdf';
-import { useTheme } from '@/components/ThemeProvider';
+// import { useTheme } from '@/components/ThemeProvider';
 
 export default function Home() {
   const [userData, setUserData] = useState<UserData>(getEmptyUserData());
-  const { theme, setTheme } = useTheme();
+  // Definir um estado local para o tema, em vez de usar o contexto
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const savedData = loadUserData();
     if (savedData) {
       setUserData(savedData);
     }
+    
+    // Carregar o tema do localStorage no cliente
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+      }
+    }
   }, []);
 
+  // Efeito para salvar os dados do usuário
   useEffect(() => {
-    saveUserData(userData);
-  }, [userData]);
+    if (isMounted) {
+      saveUserData(userData);
+    }
+  }, [userData, isMounted]);
+
+  // Efeito para aplicar o tema atual ao HTML e salvar no localStorage
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme);
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [theme, isMounted]);
 
   const handleDownloadPDF = async () => {
     try {
@@ -61,6 +92,15 @@ export default function Home() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  // Se ainda não estiver montado no cliente, exibe um estado de carregamento
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-lg">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900">
