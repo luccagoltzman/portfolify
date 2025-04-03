@@ -9,7 +9,18 @@ import { exportToPdf } from '@/utils/exportPdf';
 // import { useTheme } from '@/components/ThemeProvider';
 
 export default function Home() {
-  const [userData, setUserData] = useState<UserData>(getEmptyUserData());
+  const [userData, setUserData] = useState<UserData>(() => {
+    // Garantir que todos os campos necessários existam
+    const emptyData = getEmptyUserData();
+    
+    // Garantir que há arrays vazios para todos os campos de coleção
+    if (!emptyData.projects) emptyData.projects = [];
+    if (!emptyData.experiences) emptyData.experiences = [];
+    if (!emptyData.education) emptyData.education = [];
+    
+    return emptyData;
+  });
+  
   // Definir um estado local para o tema, em vez de usar o contexto
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
@@ -19,6 +30,11 @@ export default function Home() {
     setIsMounted(true);
     const savedData = loadUserData();
     if (savedData) {
+      // Garantir que todos os campos necessários existam nos dados carregados
+      if (!savedData.projects) savedData.projects = [];
+      if (!savedData.experiences) savedData.experiences = [];
+      if (!savedData.education) savedData.education = [];
+      
       setUserData(savedData);
     }
     
