@@ -6,10 +6,38 @@ export default function PortfolioForm({ userData, setUserData }) {
     setUserData({ ...userData, [name]: value });
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserData({ ...userData, avatarUrl: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleProjectChange = (index, field, value) => {
     const updatedProjects = [...userData.projects];
     updatedProjects[index] = { ...updatedProjects[index], [field]: value };
     setUserData({ ...userData, projects: updatedProjects });
+  };
+
+  const handleProjectImageUpload = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleProjectChange(index, 'imageUrl', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleExperienceChange = (index, field, value) => {
+    const updatedExperiences = [...userData.experiences];
+    updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
+    setUserData({ ...userData, experiences: updatedExperiences });
   };
 
   const addProject = () => {
@@ -27,11 +55,76 @@ export default function PortfolioForm({ userData, setUserData }) {
     setUserData({ ...userData, projects: updatedProjects });
   };
 
+  const addExperience = () => {
+    setUserData({
+      ...userData,
+      experiences: [
+        ...userData.experiences,
+        { 
+          company: '', 
+          position: '', 
+          startDate: '', 
+          endDate: '', 
+          description: '',
+          isCurrent: false
+        }
+      ]
+    });
+  };
+
+  const removeExperience = (index) => {
+    const updatedExperiences = userData.experiences.filter((_, i) => i !== index);
+    setUserData({ ...userData, experiences: updatedExperiences });
+  };
+
+  const toggleCurrentJob = (index) => {
+    const updatedExperiences = [...userData.experiences];
+    const experience = updatedExperiences[index];
+    experience.isCurrent = !experience.isCurrent;
+    setUserData({ ...userData, experiences: updatedExperiences });
+  };
+
   const handleSocialChange = (platform, value) => {
     setUserData({
       ...userData,
       socialLinks: { ...userData.socialLinks, [platform]: value }
     });
+  };
+
+  const handleEducationChange = (index, field, value) => {
+    const updatedEducation = [...userData.education];
+    updatedEducation[index] = { ...updatedEducation[index], [field]: value };
+    setUserData({ ...userData, education: updatedEducation });
+  };
+
+  const addEducation = () => {
+    setUserData({
+      ...userData,
+      education: [
+        ...userData.education,
+        { 
+          institution: '', 
+          degree: '', 
+          field: '',
+          startDate: '', 
+          endDate: '', 
+          description: '',
+          isCurrent: false
+        }
+      ]
+    });
+  };
+
+  const removeEducation = (index) => {
+    const updatedEducation = userData.education.filter((_, i) => i !== index);
+    setUserData({ ...userData, education: updatedEducation });
+  };
+
+  const toggleCurrentEducation = (index) => {
+    const updatedEducation = [...userData.education];
+    const education = updatedEducation[index];
+    education.isCurrent = !education.isCurrent;
+    setUserData({ ...userData, education: updatedEducation });
   };
 
   return (
@@ -91,38 +184,52 @@ export default function PortfolioForm({ userData, setUserData }) {
 
         <div className="transition-all duration-300 hover:translate-x-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-            Foto de Perfil (URL)
+            Foto de Perfil
           </label>
-          <div className="flex">
-            <input
-              type="text"
-              name="avatarUrl"
-              value={userData.avatarUrl}
-              onChange={handleChange}
-              className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-              placeholder="https://exemplo.com/sua-foto.jpg"
-            />
-            <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-700 w-12 rounded-r-lg border-t border-r border-b border-gray-300 dark:border-gray-600">
-              <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-          </div>
-          {userData.avatarUrl && (
-            <div className="mt-2 flex justify-center">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-blue-500">
-                <img 
-                  src={userData.avatarUrl} 
-                  alt="Preview" 
-                  className="object-cover w-full h-full"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ccc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'%3E%3C/path%3E%3C/svg%3E";
-                  }}
-                />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                <label className="flex flex-col items-center justify-center cursor-pointer py-4 px-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-650 transition-colors">
+                  <svg className="w-8 h-8 text-gray-500 dark:text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                    Clique para escolher uma imagem<br />
+                    <span className="text-xs">ou cole uma URL abaixo</span>
+                  </span>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleFileUpload}
+                  />
+                </label>
               </div>
+              <input
+                type="text"
+                name="avatarUrl"
+                value={userData.avatarUrl}
+                onChange={handleChange}
+                className="w-full mt-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                placeholder="https://exemplo.com/sua-foto.jpg"
+              />
             </div>
-          )}
+            {userData.avatarUrl && (
+              <div className="flex items-center justify-center">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-blue-500 shadow-md">
+                  <img 
+                    src={userData.avatarUrl} 
+                    alt="Preview" 
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ccc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'%3E%3C/path%3E%3C/svg%3E";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-10">
@@ -228,28 +335,349 @@ export default function PortfolioForm({ userData, setUserData }) {
                       <svg className="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      URL da Imagem
+                      Imagem do Projeto
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex-1">
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden mb-2">
+                          <label className="flex flex-col items-center justify-center cursor-pointer py-3 px-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-650 transition-colors">
+                            <svg className="w-7 h-7 text-gray-500 dark:text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              Clique para selecionar uma imagem
+                            </span>
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*" 
+                              onChange={(e) => handleProjectImageUpload(index, e)}
+                            />
+                          </label>
+                        </div>
+                        <input
+                          type="text"
+                          value={project.imageUrl}
+                          onChange={(e) => handleProjectChange(index, 'imageUrl', e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                          placeholder="Ou cole uma URL de imagem aqui"
+                        />
+                      </div>
+                      {project.imageUrl && (
+                        <div className="flex items-center justify-center">
+                          <div className="h-20 w-20 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800">
+                            <img 
+                              src={project.imageUrl} 
+                              alt={project.title || `Projeto ${index + 1}`} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ccc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E";
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-10">
+          <div className="mb-6">
+            <h3 className="flex items-center text-xl font-semibold text-gray-800 dark:text-white mb-2">
+              <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Experiências Profissionais
+            </h3>
+            <div className="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Adicione suas experiências profissionais para destacar sua trajetória</p>
+          </div>
+
+          <div className="flex justify-end mb-6">
+            <button
+              type="button"
+              onClick={addExperience}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Adicionar Experiência
+            </button>
+          </div>
+
+          {userData.experiences.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Nenhuma experiência adicionada ainda. Adicione sua experiência profissional para destacar suas competências.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {userData.experiences.map((experience, index) => (
+                <div key={index} className="bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-xl p-5 transition-all duration-300 hover:shadow-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-medium text-gray-800 dark:text-white flex items-center">
+                      <span className="flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs mr-2">
+                        {index + 1}
+                      </span>
+                      Experiência {index + 1}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => removeExperience(index)}
+                      className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                      aria-label="Remover experiência"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Empresa
+                      </label>
+                      <input
+                        type="text"
+                        value={experience.company}
+                        onChange={(e) => handleExperienceChange(index, 'company', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                        placeholder="Nome da empresa"
+                      />
+                    </div>
+                    
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Cargo
+                      </label>
+                      <input
+                        type="text"
+                        value={experience.position}
+                        onChange={(e) => handleExperienceChange(index, 'position', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                        placeholder="Seu cargo ou função"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Data de Início
+                      </label>
+                      <input
+                        type="month"
+                        value={experience.startDate}
+                        onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                      />
+                    </div>
+                    
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex justify-between">
+                        <span>Data de Término</span>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={experience.isCurrent}
+                            onChange={() => toggleCurrentJob(index)}
+                            className="rounded text-blue-500 focus:ring-blue-500 h-4 w-4"
+                          />
+                          <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">Emprego atual</span>
+                        </label>
+                      </label>
+                      <input
+                        type="month"
+                        value={experience.endDate}
+                        onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)}
+                        disabled={experience.isCurrent}
+                        className={`w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 ${experience.isCurrent ? 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed' : ''}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 transition-all duration-300 hover:translate-x-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Descrição
+                    </label>
+                    <textarea
+                      value={experience.description}
+                      onChange={(e) => handleExperienceChange(index, 'description', e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 resize-none"
+                      placeholder="Descreva suas principais responsabilidades e realizações..."
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-10">
+          <div className="mb-6">
+            <h3 className="flex items-center text-xl font-semibold text-gray-800 dark:text-white mb-2">
+              <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5m0 0l9-5-9-5-9 5 9 5m0 0v7"></path>
+              </svg>
+              Formação Acadêmica
+            </h3>
+            <div className="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Adicione sua formação acadêmica para destacar seus conhecimentos</p>
+          </div>
+
+          <div className="flex justify-end mb-6">
+            <button
+              type="button"
+              onClick={addEducation}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Adicionar Formação
+            </button>
+          </div>
+
+          {userData.education.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 14l9-5-9-5-9 5 9 5m0 0l9-5-9-5-9 5 9 5m0 0v7" />
+              </svg>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Nenhuma formação adicionada ainda. Adicione sua formação acadêmica para destacar seus conhecimentos.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {userData.education.map((education, index) => (
+                <div key={index} className="bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-xl p-5 transition-all duration-300 hover:shadow-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-medium text-gray-800 dark:text-white flex items-center">
+                      <span className="flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs mr-2">
+                        {index + 1}
+                      </span>
+                      Formação {index + 1}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => removeEducation(index)}
+                      className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                      aria-label="Remover formação"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Instituição
+                      </label>
+                      <input
+                        type="text"
+                        value={education.institution}
+                        onChange={(e) => handleEducationChange(index, 'institution', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                        placeholder="Nome da instituição de ensino"
+                      />
+                    </div>
+                    
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Grau/Nível
+                      </label>
+                      <select
+                        value={education.degree}
+                        onChange={(e) => handleEducationChange(index, 'degree', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                      >
+                        <option value="">Selecione um grau</option>
+                        <option value="Ensino Médio">Ensino Médio</option>
+                        <option value="Curso Técnico">Curso Técnico</option>
+                        <option value="Graduação">Graduação</option>
+                        <option value="Pós-graduação">Pós-graduação</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Mestrado">Mestrado</option>
+                        <option value="Doutorado">Doutorado</option>
+                        <option value="Outro">Outro</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 transition-all duration-300 hover:translate-x-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Área de Estudo
                     </label>
                     <input
                       type="text"
-                      value={project.imageUrl}
-                      onChange={(e) => handleProjectChange(index, 'imageUrl', e.target.value)}
+                      value={education.field}
+                      onChange={(e) => handleEducationChange(index, 'field', e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                      placeholder="https://exemplo.com/imagem.jpg"
+                      placeholder="Ex: Ciência da Computação, Administração, etc."
                     />
-                    {project.imageUrl && (
-                      <div className="mt-2 h-20 w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                        <img 
-                          src={project.imageUrl} 
-                          alt={project.title || `Projeto ${index + 1}`} 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ccc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E";
-                          }}
-                        />
-                      </div>
-                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Data de Início
+                      </label>
+                      <input
+                        type="month"
+                        value={education.startDate}
+                        onChange={(e) => handleEducationChange(index, 'startDate', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                      />
+                    </div>
+                    
+                    <div className="transition-all duration-300 hover:translate-x-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex justify-between">
+                        <span>Data de Conclusão</span>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={education.isCurrent}
+                            onChange={() => toggleCurrentEducation(index)}
+                            className="rounded text-blue-500 focus:ring-blue-500 h-4 w-4"
+                          />
+                          <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">Cursando</span>
+                        </label>
+                      </label>
+                      <input
+                        type="month"
+                        value={education.endDate}
+                        onChange={(e) => handleEducationChange(index, 'endDate', e.target.value)}
+                        disabled={education.isCurrent}
+                        className={`w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 ${education.isCurrent ? 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed' : ''}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 transition-all duration-300 hover:translate-x-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Descrição
+                    </label>
+                    <textarea
+                      value={education.description}
+                      onChange={(e) => handleEducationChange(index, 'description', e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 resize-none"
+                      placeholder="Descreva detalhes sobre o curso, realizações e atividades relevantes..."
+                    />
                   </div>
                 </div>
               ))}

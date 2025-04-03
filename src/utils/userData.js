@@ -9,7 +9,9 @@ export const defaultUserData = {
     twitter: '',
     instagram: ''
   },
-  projects: []
+  projects: [],
+  experiences: [],
+  education: []
 };
 
 export function saveUserData(userData) {
@@ -23,7 +25,11 @@ export function loadUserData() {
     const savedData = localStorage.getItem('portfolify-userData');
     if (savedData) {
       try {
-        return JSON.parse(savedData);
+        const parsedData = JSON.parse(savedData);
+        // Garantir que os dados antigos tenham as novas propriedades
+        if (!parsedData.experiences) parsedData.experiences = [];
+        if (!parsedData.education) parsedData.education = [];
+        return parsedData;
       } catch (e) {
         console.error('Erro ao carregar dados do usuário:', e);
         return defaultUserData;

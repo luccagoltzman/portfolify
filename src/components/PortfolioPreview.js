@@ -1,7 +1,17 @@
 import React from 'react';
 
 export default function PortfolioPreview({ userData, theme }) {
-  const { name, title, bio, avatarUrl, socialLinks, projects } = userData;
+  const { name, title, bio, avatarUrl, socialLinks, projects, experiences, education } = userData;
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    const month = date.toLocaleString('pt-BR', { month: 'short' }).replace('.', '');
+    const year = date.getFullYear();
+    
+    return `${month[0].toUpperCase() + month.slice(1)} ${year}`;
+  };
   
   return (
     <div className={`max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
@@ -69,7 +79,78 @@ export default function PortfolioPreview({ userData, theme }) {
           </div>
         </div>
       </header>
+
+      {/* Experiências Profissionais */}
+      {experiences && experiences.length > 0 && (
+        <section className="px-6 pb-8 pt-4">
+          <div className={`flex items-center mb-6 border-b pb-3 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h2 className="text-2xl font-bold">Experiência Profissional</h2>
+            <div className={`ml-4 h-1 w-24 rounded ${theme === 'dark' ? 'bg-blue-600' : 'bg-blue-500'}`}></div>
+          </div>
+          
+          <div className="space-y-6">
+            {experiences.map((experience, index) => (
+              <div key={index} className={`pb-5 ${index !== experiences.length - 1 ? 'border-b' : ''} ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                  <h3 className="text-xl font-bold text-blue-500">{experience.position}</h3>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} mt-1 sm:mt-0`}>
+                    {formatDate(experience.startDate)} - {experience.isCurrent ? 'Presente' : formatDate(experience.endDate)}
+                  </div>
+                </div>
+                <div className="flex items-center mb-3">
+                  <span className={`font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {experience.company}
+                  </span>
+                </div>
+                <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {experience.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Formação Acadêmica */}
+      {education && education.length > 0 && (
+        <section className="px-6 pb-8 pt-4">
+          <div className={`flex items-center mb-6 border-b pb-3 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h2 className="text-2xl font-bold">Formação Acadêmica</h2>
+            <div className={`ml-4 h-1 w-24 rounded ${theme === 'dark' ? 'bg-blue-600' : 'bg-blue-500'}`}></div>
+          </div>
+          
+          <div className="space-y-6">
+            {education.map((edu, index) => (
+              <div key={index} className={`pb-5 ${index !== education.length - 1 ? 'border-b' : ''} ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                  <h3 className="text-xl font-bold text-blue-500">{edu.degree}</h3>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} mt-1 sm:mt-0`}>
+                    {formatDate(edu.startDate)} - {edu.isCurrent ? 'Presente' : formatDate(edu.endDate)}
+                  </div>
+                </div>
+                <div className="flex items-center mb-3">
+                  <span className={`font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {edu.institution}
+                  </span>
+                  {edu.field && (
+                    <>
+                      <span className="mx-2">•</span>
+                      <span className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{edu.field}</span>
+                    </>
+                  )}
+                </div>
+                {edu.description && (
+                  <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {edu.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       
+      {/* Projetos */}
       <section className="px-6 pb-12 pt-4">
         <div className={`flex items-center mb-6 border-b pb-3 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
           <h2 className="text-2xl font-bold">Meus Projetos</h2>
@@ -139,9 +220,9 @@ export default function PortfolioPreview({ userData, theme }) {
       </section>
       
       <footer className={`text-center py-6 px-4 ${theme === 'dark' ? 'bg-gray-800 text-gray-400 border-t border-gray-700' : 'bg-gray-50 text-gray-500 border-t border-gray-200'}`}>
-        <p className="text-sm">© {new Date().getFullYear()} {name || 'Lucca Goltzman'}. Todos os direitos reservados.</p>
+        <p className="text-sm">© {new Date().getFullYear()} {name || 'Seu Nome'}. Todos os direitos reservados.</p>
         <p className="mt-1 text-xs flex items-center justify-center">
-          Criado usando Portfolify
+          Criado com usando Portfolify
         </p>
       </footer>
     </div>
