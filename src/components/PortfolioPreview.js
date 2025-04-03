@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function PortfolioPreview({ userData, theme }) {
-  const { name, title, bio, avatarUrl, socialLinks, projects, experiences, education } = userData;
+  const { name, title, bio, avatarUrl, profilePicture, socialLinks, projects, experiences, education } = userData;
   
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -21,13 +21,17 @@ export default function PortfolioPreview({ userData, theme }) {
         
         {/* Informações do perfil */}
         <div className="text-center px-6 pt-0 pb-8 relative">
-          {avatarUrl && (
+          {(profilePicture || avatarUrl) && (
             <div className="mb-6 flex justify-center -mt-16">
               <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500 shadow-xl bg-white">
                 <img 
-                  src={avatarUrl} 
+                  src={profilePicture || avatarUrl} 
                   alt={name || 'Perfil'} 
                   className="object-cover w-full h-full transition-transform duration-500 hover:scale-110"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/file.svg";
+                  }}
                 />
               </div>
             </div>
@@ -173,12 +177,16 @@ export default function PortfolioPreview({ userData, theme }) {
                 key={index} 
                 className={`rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200'}`}
               >
-                {project.imageUrl ? (
+                {(project.image || project.imageUrl) ? (
                   <div className="h-52 overflow-hidden">
                     <img 
-                      src={project.imageUrl} 
+                      src={project.image || project.imageUrl} 
                       alt={project.title} 
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/file.svg";
+                      }}
                     />
                   </div>
                 ) : (

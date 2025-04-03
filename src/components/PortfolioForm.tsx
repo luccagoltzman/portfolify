@@ -51,7 +51,8 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
         if (event.target?.result) {
           setUserData({
             ...userData,
-            profilePicture: event.target.result as string
+            profilePicture: event.target.result as string,
+            avatarUrl: event.target.result as string
           });
         }
       };
@@ -73,7 +74,8 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
           const updatedProjects = [...userData.projects];
           updatedProjects[index] = {
             ...updatedProjects[index],
-            image: event.target.result as string
+            image: event.target.result as string,
+            imageUrl: event.target.result as string
           };
           setUserData({
             ...userData,
@@ -251,10 +253,10 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
             >
               Carregar Imagem
             </label>
-            {userData.profilePicture && (
+            {(userData.profilePicture || userData.avatarUrl) && (
               <div className="w-20 h-20 relative overflow-hidden rounded-full">
                 <img
-                  src={userData.profilePicture}
+                  src={userData.profilePicture || userData.avatarUrl}
                   alt="Foto de perfil"
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -380,10 +382,10 @@ export default function PortfolioForm({ userData, setUserData }: PortfolioFormPr
                       >
                         Carregar Imagem
                       </label>
-                      {project.image && (
+                      {(project.image || project.imageUrl) && (
                         <div className="w-20 h-20 relative overflow-hidden">
                           <img
-                            src={project.image}
+                            src={project.image || project.imageUrl}
                             alt={`Imagem do projeto ${project.title}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
