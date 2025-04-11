@@ -43,6 +43,8 @@ export const getEmptyUserData = (): UserData => {
       twitter: '',
       instagram: ''
     },
-    projects: []
+    projects: [],
+    experiences: [],
+    education: []
   };
 }; 
